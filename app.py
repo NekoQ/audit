@@ -46,46 +46,6 @@ arr2copy = []
 failedselected = []
 
 
-def make_query(struct):
-    query = 'reg query ' + struct['reg_key'] + ' /v ' + struct['reg_item']
-    out = subprocess.Popen(query, stdout=subprocess.PIPE,
-                           stderr=subprocess.STDOUT)
-    output = out.communicate()[0].decode('ascii', 'ignore')
-    str = ''
-    for char in output:
-        if char.isprintable() and char != '\n' and char != '\r':
-            str += char
-    output = str
-    output = output.split(' ')
-    output = [x for x in output if len(x) > 0]
-    value = ''
-
-    if 'ERROR' in output[0]:
-        unknown.append(struct['reg_key'] + struct['reg_item'])
-    for i in range(len(output)):
-        if 'REG_' in output[i]:
-            for element in output[i + 1:]:
-                value = value + element + ' '
-            value = value[:len(value) - 1]
-            if struct['value_data'][:2] == '0x':
-                struct['value_data'] = struct['value_data'][2:]
-            struct['value_data'] = hex(int(struct['value_data']))
-            p = re.compile('.*' + struct['value_data'] + '.*')
-            if p.match(value):
-                print('PASSED Policy desc:'+struct['description'])
-                print('Patern:', struct['value_data'])
-                print('Value:', value)
-                success.append(
-                    struct['reg_key'] + struct['reg_item'] + '\n' + 'Value:' + value)
-                success1.append([struct, value])
-
-            else:
-                print('FAILED Policy desc:' + struct['description'])
-                print('Did not pass: ', struct['value_data'])
-                print('Value which did not pass: ', value)
-                fail.append([struct, value])
-
-
 def check():
     global success1
     global success
